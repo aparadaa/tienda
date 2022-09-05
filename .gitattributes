@@ -1,0 +1,8 @@
+* text=auto
+*.css linguist-vendored
+*.scss linguist-vendored
+*.js linguist-vendored
+CHANGELOG.md export-ignore
+dockerfiles/php/php.sh text eol=lf
+dockerfiles/php/limits.conf text eol=lf
+dockerfiles/php/opcache.conf text eol=lf
