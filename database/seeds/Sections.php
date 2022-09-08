@@ -13,10 +13,14 @@ class Sections
             new CsgtModule('Catálogos', '', 'catalogs', 2000, 'fa fa-book', null, []),
             new CsgtModule('Usuarios', 'Catálogos - Usuarios', 'catalogs.users', 100, 'fa fa-user', 'catalogs'),
             new CsgtModule('Roles', 'Catálogos - Roles', 'catalogs.roles', 200, 'fa fa-key', 'catalogs'),
-           
-            //Bodegas
-            // new CsgtModule('Bodegas', 'Bodegas', 'bodegas', 1500, 'fas fa-warehouse', null, []),
-            // new CsgtModule('Movimientos', 'Bodegas - Movimientos', 'bodegas.movimientos', 100, null, 'bodegas', []),
+
+            // Compras
+            new CsgtModule('Compras', '', 'compras', 3000, 'fas fa-shopping-cart', null, []),
+            new CsgtModule('Productos', 'Compras - Productos', 'compras.productos', 100, 'fa fa-product-hunt', 'compras'),
+            
+            // Bodegas
+            new CsgtModule('Bodegas', '', 'bodegas', 4000, 'fas fa-warehouse', null, []),
+            new CsgtModule('Bodegas', 'Bodegas - Bodegas', 'bodegas.bodegas', 100, 'fas fa-warehouse-alt', 'bodegas'),
             // new CsgtModule('Informes Bodegas', 'Bodegas - Informes Bodegas', 'bodegas.informesbodegas', 200, null, 'bodegas', ['show'], 'show', 7594),
             // new CsgtModule('Escritorio Pedidos', 'Bodegas - Escritorio Pedidos', 'bodegas.escritoriopedidos', 400, null, 'bodegas', ['show'], 'show', 7330),
             // new CsgtModule('Traslados Bodegas', 'Bodegas - Traslados Bodegas', 'bodegas.trasladosbodegas', 500, null, 'bodegas', ['show'], 'show', 7416),
@@ -24,7 +28,6 @@ class Sections
             // new CsgtModule('Descuentos Bodega', 'Bodegas - Descuentos Bodega', 'bodegas.descuentosbodega', 800, null, 'bodegas', ['show'], 'show', 7604),
             // new CsgtModule('Consulta Materiales', 'Bodegas - Consulta Materiales', 'bodegas.consultamateriales', 900, null, 'bodegas', ['show'], 'show', 7680),
 
-           
             // new CsgtModule('Estiba', 'Escritorio fruta - Estibas', 'escritoriofruta.estibas', 500, null, 'escritoriofruta', ['index', 'store', 'update', 'destroy', 'data', 'detail']),
             // new CsgtModule('Movimientos', 'Bodegas - Movimientos - Movimientos', 'bodegas.movimientos.movimientos', 100, null, 'bodegas.movimientos'),
             // new CsgtModule('Salidas', 'Bodegas - Movimientos - Salidas', 'bodegas.movimientos.salidas', 200, null, 'bodegas.movimientos'),

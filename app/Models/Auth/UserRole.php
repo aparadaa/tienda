@@ -5,5 +5,5 @@ use Csgt\Cancerbero\Models\UserRole as CsgtUserRole;
 
 class UserRole extends CsgtUserRole
 {
-    protected $connection = 'core';
+
 }

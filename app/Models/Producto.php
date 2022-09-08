@@ -1,9 +1,10 @@
 <?php
-namespace App\Models\Auth;
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserLogin extends Model
+class Producto extends Model
 {
     protected $guarded = ['id'];
 }

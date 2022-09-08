@@ -31,16 +31,19 @@ Route::group(['middleware' => ['auth', 'cancerbero']], function () {
         Route::resource('roles', 'RolesController');
     });
 
+    Route::namespace ('Compras')->prefix('compras')->name('compras.')->group(function () {
+        Route::resource('productos', 'ProductosController');
+    });
 
+    Route::namespace ('Bodegas')->prefix('bodegas')->name('bodegas.')->group(function () {
+        Route::resource('bodegas', 'BodegasController');
+    });
     // Route::namespace ('Bodegas')->prefix('bodegas')->name('bodegas.')->group(function () {
     //     Route::namespace ('Movimientos')->prefix('movimientos')->name('movimientos.')->group(function () {
     //         Route::resource('movimientos', 'MovimientosController');
-    //         Route::resource('salidas', 'MovimientosController');
-    //         Route::resource('bodegas', 'BodegasController', ['only' => ['index', 'data', 'detail']]);
     //     });
     //     Route::resource('recepcion', 'RecepcionController');
-        
+
     // });
 
-    
 });

@@ -13,8 +13,8 @@ yarn-error.log
 docker-compose.yml
 /public/mix-manifest.json
 /public/dist
-public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.svg
 dockerfiles/php/php.docker
 dockerfiles/php/php.docker
-public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.svg
 web-laravel
+public/fonts
+public/vendor

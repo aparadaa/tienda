@@ -28,15 +28,6 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="form-group">
-                            <label for="empresa_id">Empresa</label>
-                            <input name="empresa_id" type="number" autocomplete="off" :class="{'form-control' : true, 'is-invalid' : validationErrors['user.empresa_id']}" v-model="data.user.empresa_id">
-                            <div v-if="validationErrors['user.empresa_id']" class="invalid-feedback">
-                                {{validationErrors['user.empresa_id'][0]}}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group">
                             <label for="roles">Roles</label>
                             <selectize name="roles" :class="{'form-control' : true, 'is-invalid' : validationErrors['user.role_ids']}" v-model="data.user.role_ids" multiple>
                                 <option v-for="role in data.roles" :value="role.id" :key="role.id">
