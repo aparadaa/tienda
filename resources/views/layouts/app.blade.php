@@ -89,7 +89,7 @@
         </div>
 
         <footer class="main-footer">
-            <strong>Copyright &copy; {{date('Y')==2020?'2020':'2020-' . date('Y')}} <a href="{{env('APP_COMPANY_URL')}}">{{env('APP_COMPANY')}}</a>.</strong>
+            <strong>Copyright &copy; {{date('Y')==2022?'2022':'2022-' . date('Y')}}.</strong>
             Todos los derechos reservados.
             <div class="float-right d-none d-sm-inline-block">
                 <b>Versión</b> {{ENV('APP_VERSION')}}

@@ -10,17 +10,19 @@ class Sections
     {
         return collect([
             new CsgtModule('Inicio', 'Inicio', 'index', 1000, 'fa fa-home', null, CsgtModule::INDEX),
-            new CsgtModule('Catálogos', '', 'catalogs', 2000, 'fa fa-book', null, []),
+            new CsgtModule('Catálogos', '', 'catalogs', 10000, 'fa fa-book', null, []),
             new CsgtModule('Usuarios', 'Catálogos - Usuarios', 'catalogs.users', 100, 'fa fa-user', 'catalogs'),
             new CsgtModule('Roles', 'Catálogos - Roles', 'catalogs.roles', 200, 'fa fa-key', 'catalogs'),
 
             // Compras
             new CsgtModule('Compras', '', 'compras', 3000, 'fas fa-shopping-cart', null, []),
-            new CsgtModule('Productos', 'Compras - Productos', 'compras.productos', 100, 'fa fa-product-hunt', 'compras'),
-            
+            new CsgtModule('Productos', 'Compras - Productos', 'compras.productos', 100, 'fas fa-shopping-bag', 'compras', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
+
             // Bodegas
             new CsgtModule('Bodegas', '', 'bodegas', 4000, 'fas fa-warehouse', null, []),
-            new CsgtModule('Bodegas', 'Bodegas - Bodegas', 'bodegas.bodegas', 100, 'fas fa-warehouse-alt', 'bodegas'),
+            new CsgtModule('Bodegas', 'Bodegas - Bodegas', 'bodegas.bodegas', 100, 'fas fa-warehouse', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
+            new CsgtModule('Bodegas de Usuarios', 'Bodegas - Bodegas de Usuarios', 'bodegas.bodegas-usuarios', 200, 'fas fa-house-user', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
+            new CsgtModule('Movimientos', 'Bodegas - Movimientos', 'bodegas.movimientos', 300, 'fas fa-folder-open', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
             // new CsgtModule('Informes Bodegas', 'Bodegas - Informes Bodegas', 'bodegas.informesbodegas', 200, null, 'bodegas', ['show'], 'show', 7594),
             // new CsgtModule('Escritorio Pedidos', 'Bodegas - Escritorio Pedidos', 'bodegas.escritoriopedidos', 400, null, 'bodegas', ['show'], 'show', 7330),
             // new CsgtModule('Traslados Bodegas', 'Bodegas - Traslados Bodegas', 'bodegas.trasladosbodegas', 500, null, 'bodegas', ['show'], 'show', 7416),

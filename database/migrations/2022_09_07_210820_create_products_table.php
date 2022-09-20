@@ -19,6 +19,7 @@ class CreateProductsTable extends Migration
             $table->string('marca');
             $table->string('descripcion');
             $table->string('codigo_barra');
+            $table->double('precio_venta')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('products');
+        Schema::dropIfExists('productos');
     }
 }

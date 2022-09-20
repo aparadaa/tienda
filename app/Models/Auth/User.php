@@ -1,7 +1,7 @@
 <?php
 namespace App\Models\Auth;
 
-use App\Models\CollectForm\Formulario;
+use App\Models\Bodega;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -30,9 +30,9 @@ class User extends Authenticatable
         return $this->roles->pluck('id')->toArray();
     }
 
-    public function formularios()
+    public function bodegas()
     {
-        return $this->belongsToMany(Formulario::class, 'collectform.usuarios_formularios', 'user_id', 'formulario_id');
+        return $this->belongsToMany(Bodega::class, 'user_bodegas');
     }
 
     public function getAvatarAttribute($value)

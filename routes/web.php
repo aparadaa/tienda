@@ -23,6 +23,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('profile', 'ProfileController', ['only' => ['index', 'detail', 'store']]);
 });
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::namespace ('Clientes')->prefix('clientes')->name('clientes.')->group(function () {
+        Route::resource('clientes', 'ClientesController')->only(['show', 'store']);
+    });
+});
+
 Route::group(['middleware' => ['auth', 'cancerbero']], function () {
     Route::get('/', ['as' => 'index.index', 'uses' => 'HomeController@index']);
 
@@ -37,6 +43,8 @@ Route::group(['middleware' => ['auth', 'cancerbero']], function () {
 
     Route::namespace ('Bodegas')->prefix('bodegas')->name('bodegas.')->group(function () {
         Route::resource('bodegas', 'BodegasController');
+        Route::resource('bodegas-usuarios', 'UserBodegasController');
+        Route::resource('movimientos', 'MovimientosController');
     });
     // Route::namespace ('Bodegas')->prefix('bodegas')->name('bodegas.')->group(function () {
     //     Route::namespace ('Movimientos')->prefix('movimientos')->name('movimientos.')->group(function () {

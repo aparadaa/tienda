@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,6 +17,9 @@ class DatabaseSeeder extends Seeder
         $this->call('PermissionsSeeder');
         $this->call('ModulePermissionsSeeder');
         $this->call('MenuSeeder');
+        $this->call('MovimientoTipoSeeder');
+        $this->call('MovimientoTipoPagoSeeder');
+        $this->call('EstadoMovimientoSeeder');
         Schema::enableForeignKeyConstraints();
     }
 }

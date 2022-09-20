@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBodegasTable extends Migration
+class CreateEstadoMovimientosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateBodegasTable extends Migration
      */
     public function up()
     {
-        Schema::create('bodegas', function (Blueprint $table) {
+        Schema::create('estado_movimientos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
             $table->string('descripcion');
-            $table->string('direccion');
-            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ class CreateBodegasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bodegas');
+        Schema::dropIfExists('estado_movimientos');
     }
 }

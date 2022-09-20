@@ -1,28 +1,27 @@
 version: '3'
 services:
-    nginx:
+    app:
         build:
             context: ./
-            dockerfile: dockerfiles/nginx/nginx.docker
+            dockerfile: dockerfiles/app/Dockerfile
         volumes:
             - './:/var/www'
         restart: always
         ports:
-            - '8080:80'
+            - '80:80'
+            - '443:443'
+            - '8080:8080'
         links:
-            - php
-    php:
-        build:
-            context: ./
-            dockerfile: dockerfiles/php/php.docker
-        volumes:
-            - './:/var/www'
-        restart: always
-        links:
-            - mysql
+            - redis
+        depends_on:
+            - redis
         environment:
             - "TZ=America/Guatemala"
-            - CONTAINER_ROLE=app
+    redis:
+        build:
+            context: ./
+            dockerfile: dockerfiles/redis/redis.docker
+        restart: always
     mysql:
         build:
             context: ./

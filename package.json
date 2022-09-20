@@ -1,13 +1,11 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "npm run development -- --watch",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "dev": "npx mix",
+        "watch": "npx mix watch",
+        "hot": "npx mix watch --hot -- --host 0.0.0.0 --watch-options-poll=1000",
+        "prod": "npx mix --production",
+        "production": "npx mix --production"
     },
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.15.3",
@@ -36,6 +34,7 @@
         "vue2-selectize": "^1.1"
     },
     "dependencies": {
+        "sweetalert2": "^11.4.33",
         "vue-multiselect": "^2.1.6"
     }
 }
