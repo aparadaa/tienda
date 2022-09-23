@@ -156,24 +156,89 @@
               />
             </div>
           </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary" @click="save"><i class="fas fa-save"></i></button>
+          </div>
         </div>
         <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <label class="typo__label" for="detalle">Detalle</label>
+              <label class="typo__label" for="detalle">Detalles</label>
               <table class="table table-bordered">
                 <thead>
                   <tr>
                     <th>Producto</th>
                     <th>Cantidad</th>
-                    <th>Costo</th>
-                    <th>Subtotal</th>
-                    <th></th>
+                    <th v-if="movimiento.tipo.nombre == 'Entrada'">
+                      Costo Unitario
+                    </th>
+                    <th v-else>Precio</th>
+                    <th v-if="movimiento.tipo.nombre == 'Entrada'">
+                      Fecha vencimiento
+                    </th>
+                    <th v-else>Subtotal</th>
+                    <th>-</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- <tr v-for="(detalle, index) in movimiento.detalle">
-                          <tr> -->
+                  <tr
+                    v-for="(detalle, index) in movimiento.detalles"
+                    :key="index"
+                  >
+                    <td>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :value="
+                          detalle.producto.nombre +
+                          ' ' +
+                          detalle.producto.marca +
+                          ' ' +
+                          detalle.producto.descripcion
+                        "
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        v-model="detalle.cantidad"
+                      />
+                    </td>
+                    <td v-if="movimiento.tipo.nombre == 'Entrada'">
+                      <input
+                        type="number"
+                        class="form-control"
+                        v-model="detalle.costo_unitario"
+                      />
+                    </td>
+                    <td v-else>
+                      <input
+                        type="number"
+                        class="form-control"
+                        v-model="detalle.producto.precio_venta"
+                        :disabled="true"
+                      />
+                    </td>
+                    <td v-if="movimiento.tipo.nombre == 'Entrada'">
+                      <input
+                        type="date"
+                        class="form-control"
+                        v-model="detalle.expiracion"
+                      />
+                    </td>
+                    <td v-else>
+                      <input
+                        type="number"
+                        class="form-control"
+                        :value="
+                          parseFloat(detalle.producto.precio_venta) *
+                          parseFloat(detalle.cantidad)
+                        "
+                        :disabled="true"
+                      />
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -206,27 +271,44 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-md-12">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="typo__label">Nombres</label>
-                    <input
-                      type="text"
-                      :class="errorClass('Nombres')"
-                      v-model="movimiento.cliente.nombres"
-                      autofocus
-                    />
-                  </div>
+                <div class="form-group">
+                  <label class="typo__label">Nombres</label>
+                  <input
+                    type="text"
+                    :class="errorClass('nombres')"
+                    v-model="cliente.nombres"
+                    autofocus
+                  />
                 </div>
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label class="typo__label">Direccion</label>
-                    <textarea
-                      type="text"
-                      :class="errorClass('Direccion')"
-                      v-model="movimiento.cliente.direccion"
-                    ></textarea>
-                  </div>
+                <span v-if="validationErrors.nombres" class="text-danger">{{
+                  validationErrors.nombres[0]
+                }}</span>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label class="typo__label">Correo</label>
+                  <input
+                    type="text"
+                    :class="errorClass('email')"
+                    v-model="cliente.email"
+                  />
                 </div>
+                <span v-if="validationErrors.email" class="text-danger">{{
+                  validationErrors.email[0]
+                }}</span>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label class="typo__label">Direccion</label>
+                  <textarea
+                    type="text"
+                    :class="errorClass('direccion')"
+                    v-model="cliente.direccion"
+                  ></textarea>
+                </div>
+                <span v-if="validationErrors.direccion" class="text-danger">{{
+                  validationErrors.direccion[0]
+                }}</span>
               </div>
             </div>
           </div>
@@ -268,6 +350,11 @@ export default {
     return {
       movimiento: null,
       codigo_barra: null,
+      cliente: {
+        nombres: null,
+        direccion: null,
+        email: null,
+      },
       validationErrors: {},
     };
   },
@@ -334,6 +421,7 @@ export default {
       const params = {
         codigo_barra: this.codigo_barra,
         bodega_id: this.movimiento.bodega.id,
+        tipo: this.movimiento.tipo,
       };
 
       axios
@@ -342,20 +430,17 @@ export default {
           const producto = res.data;
           if (this.movimiento.detalles.length == 0) {
             this.movimiento.detalles.push({
-              lote_id: 0,
-              lote: {
-                producto: producto,
-              },
+              producto: producto,
               cantidad: 1,
-              precio_venta_unidad: producto.precio_venta,
-              subtotal: producto.precio_venta,
+              costo_unitario: "",
+              expiracion: "",
             });
           } else {
             let existe = false;
             this.movimiento.detalles.forEach((detalle, index) => {
-              if (detalle.lote.producto.id == producto.id) {
+              if (detalle.producto.id == producto.id) {
                 existe = true;
-                this.movimiento.detalles[index].cantidad += 1;
+                this.movimiento.detalles[index].cantidad = parseInt(this.movimiento.detalles[index].cantidad) + 1;
                 this.movimiento.detalles[index].subtotal =
                   this.movimiento.detalles[index].cantidad *
                   producto.precio_venta;
@@ -363,13 +448,10 @@ export default {
             });
             if (!existe) {
               this.movimiento.detalles.push({
-                lote_id: 0,
-                lote: {
-                  producto: producto,
-                },
+                producto: producto,
                 cantidad: 1,
-                precio_venta_unidad: producto.precio_venta,
-                subtotal: producto.precio_venta,
+                costo_unitario: "",
+                expiracion: "",
               });
             }
           }
@@ -399,9 +481,9 @@ export default {
     },
     agregarCliente() {
       this.startTransaction();
-      let cliente = this.movimiento.cliente;
-      delete cliente.id;
-
+      let cliente = this.cliente;
+      cliente.id = this.movimiento.cliente.id;
+      this.validationErrors = {};
       axios
         .post(`/clientes/clientes`, cliente)
         .then((res) => {
@@ -413,6 +495,21 @@ export default {
           this.handleError(err);
         });
     },
+    save(){
+      this.startTransaction();
+      const params = {
+        movimiento: this.movimiento,
+      };
+      axios
+        .post(`/bodegas/movimientos`, params)
+        .then((res) => {
+          this.showMessage("success", "Éxito", "Guardado correctamente");
+          this.saving = false;
+        })
+        .catch((err) => {
+          this.handleError(err);
+        });
+    }
   },
   computed: {
     nombreProducto() {

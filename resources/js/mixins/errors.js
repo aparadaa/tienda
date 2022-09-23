@@ -12,6 +12,12 @@ export const errorsMixin = {
         },
         handleError(error, title = 'Oops...') {
             this.saving = false
+
+            if (!error.hasOwnProperty('response')) {
+                this.showMessage('error', 'Network Error', error)
+                return
+            }
+
             if (error.response.status == 422) {
                 this.validationErrors = error.response.data.errors;
             } else {

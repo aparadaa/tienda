@@ -22,11 +22,14 @@ class ClientesController extends Controller
 
     public function store(ClienteStoreRequest $request)
     {
-        $cliente = new Cliente;
-        $cliente->fill($request->all());
+        $cliente            = new Cliente;
+        $cliente->id        = $request->id;
+        $cliente->email     = $request->email;
+        $cliente->nombres   = $request->nombres;
+        $cliente->direccion = $request->direccion;
         $cliente->save();
 
-        return response()->json($cliente);
+        return response()->json(Cliente::find($request->id));
     }
 
     public function show(Request $request, $id)
