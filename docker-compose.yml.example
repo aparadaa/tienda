@@ -13,6 +13,7 @@ services:
             - '8080:8080'
         links:
             - redis
+            - mysql
         depends_on:
             - redis
         environment:
@@ -22,6 +23,15 @@ services:
             context: ./
             dockerfile: dockerfiles/redis/redis.docker
         restart: always
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8081:80
+        environment:
+            - PMA_ARBITRARY=1
+        links:
+            - mysql
     mysql:
         build:
             context: ./
