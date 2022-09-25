@@ -3,6 +3,7 @@
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
 use App\Models\Auth\UserRole;
+use App\Models\Cliente;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,6 +18,15 @@ class InitialSeeder extends Seeder
             'description' => 'Rol Backdoor',
             'created_at'  => date_create(),
             'updated_at'  => date_create(),
+        ]);
+
+        Cliente::insert([
+            'id'         => 1,
+            'email'      => 'N/A',
+            'nombres'    => 'N/A',
+            'direccion'  => 'N/A',
+            'created_at' => date_create(),
+            'updated_at' => date_create(),
         ]);
 
         User::insert([

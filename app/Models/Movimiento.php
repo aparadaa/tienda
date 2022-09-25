@@ -10,12 +10,12 @@ class Movimiento extends Model
 
     public function estado()
     {
-        return $this->belongsTo(EstadoMovimiento::class, 'id', 'estado_movimiento_id');
+        return $this->belongsTo(EstadoMovimiento::class, 'estado_movimiento_id', 'id');
     }
 
     public function tipo()
     {
-        return $this->belongsTo(TipoMovimiento::class, 'id', 'tipo_movimiento_id');
+        return $this->belongsTo(TipoMovimiento::class, 'tipo_movimiento_id', 'id');
     }
 
     public function tipoPago()
@@ -36,5 +36,10 @@ class Movimiento extends Model
     public function bodegaRecibe()
     {
         return $this->belongsTo(Bodega::class, 'recibe_bodega_id');
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 }

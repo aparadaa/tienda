@@ -12,6 +12,7 @@ use App\Models\TipoMovimiento;
 use App\Models\TipoPago;
 use Csgt\Crud\CrudController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class MovimientosController extends CrudController
@@ -133,7 +134,7 @@ class MovimientosController extends CrudController
 
     public static function dataMovimiento($id)
     {
-        if ($id == 0) {
+        if ($id == '0') {
             $misBodegas = auth()->user()
                 ->bodegas
                 ->map(function ($bodega) {
@@ -160,11 +161,11 @@ class MovimientosController extends CrudController
                     'id'          => 0,
                     'descripcion' => '',
                 ],
-                'tipoPago'             => [
+                'tipo_pago'            => [
                     'id'          => 1,
                     'descripcion' => 'Efectivo',
                 ],
-                'bodegaRecibe'         => [
+                'bodega_recibe'        => [
                     'id'     => 0,
                     'nombre' => '',
                 ],
@@ -181,10 +182,10 @@ class MovimientosController extends CrudController
             ->with('tipo')
             ->with('estado')
             ->with('tipoPago')
-            ->with('detalles')
+            ->with('detalles.producto')
             ->with('bodegaRecibe')
             ->with('cliente')
-            ->findOrFail($id);
+            ->findOrFail(Crypt::decrypt($id));
 
         return $movimiento;
     }
@@ -192,35 +193,53 @@ class MovimientosController extends CrudController
     public function store(Request $request)
     {
         $rules = [
-            'movimiento.bodega.id'   => 'required',
-            'movimiento.tipo.id'     => 'required',
-            'movimiento.tipoPago.id' => 'required',
-            'movimiento.cliente.id'  => 'required',
-            'movimiento.detalles'    => 'required|min:1',
+            'movimiento.bodega.id'    => 'required',
+            'movimiento.tipo.id'      => 'required',
+            'movimiento.tipo_pago.id' => 'required',
+            'movimiento.detalles'     => 'required|min:1',
         ];
 
         $request->validate($rules);
 
         $movimiento = $request->movimiento;
 
-        if ($movimiento['tipo']['nombre'] == 'Traslado' && !$movimiento['bodegaRecibe']) {
-            abort(400, "Debe seleccionar la bodega a la que se traslada el producto");
+        if ($movimiento['tipo']['nombre'] == 'Traslado' && !$movimiento['bodega_recibe']) {
+            abort(500, 'Debe seleccionar la bodega a la que se traslada el producto');
+        }
+
+        if ($movimiento['tipo']['nombre'] != 'Traslado' && $movimiento['cliente']['id'] == '') {
+            abort(500, 'Debe ingresar el cliente');
+        }
+
+        if ($movimiento['tipo']['nombre'] == 'Venta' && $movimiento['tipo_pago']['nombre'] == 'Electrónico' && $movimiento['voucher'] == '') {
+            abort(500, 'Debe ingresar el voucher');
+        }
+
+        if ($movimiento['tipo']['nombre'] == 'Traslado') {
+            $movimiento['cliente']['id'] = 1;
+
+            if ($movimiento['bodega_recibe']['id'] == 0) {
+                abort(500, 'Debe seleccionar la bodega a la que se traslada el producto');
+            }
+
+            if ($movimiento['bodega_recibe']['id'] == $movimiento['bodega']['id']) {
+                abort(500, 'La bodega de origen y destino no pueden ser iguales');
+            }
         }
 
         DB::transaction(function () use ($movimiento) {
             $m                       = new Movimiento;
             $m->bodega_id            = $movimiento['bodega']['id'];
-            $m->tipo_movimiento_id   = $movimiento['tipo']['id'];
-            $m->estado_movimiento_id = 1;
-            $m->tipo_pago_id         = $movimiento['tipoPago']['id'];
+            $m->tipo_movimiento_id   = $movimiento['tipo']['id'];            
+            $m->tipo_pago_id         = $movimiento['tipo_pago']['id'];
 
-            if ($movimiento['tipo']['nombre'] != 'Traslado') {
-                $m->recibe_bodega_id = $movimiento['bodega']['id'];
+            if ($movimiento['tipo']['nombre'] == 'Traslado') {
+                $m->recibe_bodega_id = $movimiento['bodega_recibe']['id'];
+                $m->estado_movimiento_id = 3;
             } else {
-                $m->recibe_bodega_id = $movimiento['bodegaRecibe']['id'];
+                $m->recibe_bodega_id = $movimiento['bodega']['id'];
+                $m->estado_movimiento_id = 1;
             }
-
-            $m->recibe_bodega_id = $movimiento['bodega']['id'];
             $m->cliente_id       = $movimiento['cliente']['id'];
             $m->user_id          = auth()->user()->id;
             $m->voucher          = $movimiento['voucher'] ?? null;
@@ -234,20 +253,16 @@ class MovimientosController extends CrudController
                     $this->storeDetalleVenta($movimiento['detalles'], $m);
                     break;
                 case 'Traslado':
-                    # code...
+                    $this->storeTraslado($movimiento['detalles'], $m);
                     break;
             }
 
-            // $lote = Lote::query()
-            //     ->where('bodega_id', $movimiento['bodega']['id'])
-            //     ->where('producto_id', $detalle['producto']['id'])
-            //     ->first();
-
-            // $lote->existencia -= $detalle['cantidad'];
-            // $lote->save();
-
         });
 
+        //TODO: crear factura en pdf, espero me de tiempo.
+        return response()->json([
+            'message' => $movimiento['tipo']['nombre'] . ' registrado(a) correctamente',
+        ]);
     }
 
     public function storeDetalleEntrada($detalles, $movimiento)
@@ -276,6 +291,7 @@ class MovimientosController extends CrudController
 
             $md                      = new MovimientoDetalle;
             $md->movimiento_id       = $movimiento->id;
+            $md->producto_id         = $lote->producto_id;
             $md->lote_id             = $lote->id;
             $md->cantidad            = $detalle['cantidad'];
             $md->precio_venta_unidad = 0;
@@ -296,7 +312,8 @@ class MovimientosController extends CrudController
             foreach ($lotes as $lote) {
                 $md                      = new MovimientoDetalle;
                 $md->movimiento_id       = $movimiento->id;
-                $md->lote_id             = $lote['id'];
+                $md->lote_id             = $lote['lote']->id;
+                $md->producto_id         = $producto_id;
                 $md->cantidad            = $lote['cantidad'];
                 $md->precio_venta_unidad = $detalle['producto']['precio_venta'];
                 $md->sub_total           = $detalle['producto']['precio_venta'] * $lote['cantidad'];
@@ -305,7 +322,7 @@ class MovimientosController extends CrudController
         }
     }
 
-    public function rebajarExistenciasLotes($producto_id, $bodega_id, $cantidad, &$lotes)
+    public function rebajarExistenciasLotes(int $producto_id, int $bodega_id, float $cantidad, array&$lotes): void
     {
         $lote = Lote::query()
             ->where('bodega_id', $bodega_id)
@@ -315,21 +332,54 @@ class MovimientosController extends CrudController
             ->first();
 
         if (is_null($lote)) {
-            abort(400, "No hay existencias del producto en la bodega");
+            abort(500, "No hay existencias del producto en la bodega");
         }
 
         if ($lote->existencia >= $cantidad) {
             $lote->existencia -= $cantidad;
             $lote->save();
-            $lotes[] = ['id' => $lote->id, 'cantidad' => $cantidad];
+            $lotes[] = ['lote' => $lote, 'cantidad' => $cantidad];
             return;
         } else {
-            $lotes[] = ['id' => $lote->id, 'cantidad' => $lote->existencia];
+            $lotes[] = ['lote' => $lote, 'cantidad' => $lote->existencia];
             $cantidad -= $lote->existencia;
             $lote->existencia = 0;
             $lote->save();
-            
+
             $this->rebajarExistenciasLotes($producto_id, $bodega_id, $cantidad, $lotes);
+        }
+    }
+
+    public function storeTraslado($detalles, $movimiento)
+    {
+        foreach ($detalles as $detalle) {
+            $producto_id = $detalle['producto']['id'];
+            $bodega_id   = $movimiento->bodega_id;
+            $cantidad    = $detalle['cantidad'];
+            $lotes       = [];
+
+            $this->rebajarExistenciasLotes($producto_id, $bodega_id, $cantidad, $lotes);
+
+            foreach ($lotes as $lote) {
+                $md                      = new MovimientoDetalle;
+                $md->movimiento_id       = $movimiento->id;
+                $md->lote_id             = $lote['lote']->id;
+                $md->producto_id         = $producto_id;
+                $md->cantidad            = $lote['cantidad'];
+                $md->precio_venta_unidad = $detalle['producto']['precio_venta'];
+                $md->sub_total           = $detalle['producto']['precio_venta'] * $lote['cantidad'];
+                $md->save();
+
+                $l                 = new Lote;
+                $l->producto_id    = $lote['lote']->producto_id;
+                $l->bodega_id      = $movimiento->recibe_bodega_id;
+                $l->expiracion     = $lote['lote']->expiracion;
+                $l->cantidad       = $lote['cantidad'];
+                $l->costo_unitario = $lote['lote']->costo_unitario;
+                $l->costo_total    = $lote['cantidad'] * $lote['lote']->costo_unitario;
+                $l->existencia     = $lote['cantidad'];
+                $l->save();
+            }
         }
     }
     // 'update'

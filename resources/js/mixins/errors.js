@@ -11,7 +11,7 @@ export const errorsMixin = {
             return ['btn', def, this.saving ? 'disabled' : '']
         },
         handleError(error, title = 'Oops...') {
-            this.saving = false
+            this.saving = false;
 
             if (!error.hasOwnProperty('response')) {
                 this.showMessage('error', 'Network Error', error)
@@ -68,7 +68,7 @@ export const errorsMixin = {
     },
     computed: {
         hasErrors() {
-            return _.isEmpty(this.validationErrors)
+            return !_.isEmpty(this.validationErrors)
         }
     },
 }

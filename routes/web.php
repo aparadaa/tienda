@@ -46,12 +46,9 @@ Route::group(['middleware' => ['auth', 'cancerbero']], function () {
         Route::resource('bodegas-usuarios', 'UserBodegasController');
         Route::resource('movimientos', 'MovimientosController');
     });
-    // Route::namespace ('Bodegas')->prefix('bodegas')->name('bodegas.')->group(function () {
-    //     Route::namespace ('Movimientos')->prefix('movimientos')->name('movimientos.')->group(function () {
-    //         Route::resource('movimientos', 'MovimientosController');
-    //     });
-    //     Route::resource('recepcion', 'RecepcionController');
 
-    // });
+    Route::namespace ('Inventarios')->prefix('inventarios')->name('inventarios.')->group(function () {
+        Route::resource('inventarios', 'InventariosController')->only(['index', 'show']);
+    });
 
 });

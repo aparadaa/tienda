@@ -20,6 +20,7 @@
                 :options="mis_bodegas"
                 :searchable="true"
                 :allow-empty="false"
+                :disabled="saving"
               >
               </multiselect>
             </div>
@@ -39,6 +40,7 @@
                 :searchable="true"
                 :allow-empty="false"
                 @select="verificarTipo"
+                :disabled="saving"
               >
               </multiselect>
             </div>
@@ -70,7 +72,7 @@
               <multiselect
                 selectedLabel="Seleccionado"
                 selectLabel="Presiona enter para seleccionar"
-                v-model="movimiento.tipoPago"
+                v-model="movimiento.tipo_pago"
                 deselect-label="No se puede quitar este valor"
                 track-by="descripcion"
                 label="descripcion"
@@ -79,6 +81,7 @@
                 :searchable="true"
                 :allow-empty="false"
                 @select="verificarTipoPago"
+                :disabled="saving"
               >
               </multiselect>
             </div>
@@ -92,9 +95,7 @@
                 type="text"
                 class="form-control"
                 v-model="movimiento.cliente.id"
-                :disabled="
-                  movimiento.estado.id != 1 && movimiento.estado.id != 0
-                "
+                :disabled="saving || movimiento.id != '0'"
                 @keydown.enter="obtenerCliente()"
               />
             </div>
@@ -118,7 +119,7 @@
               <multiselect
                 selectedLabel="Seleccionado"
                 selectLabel="Presiona enter para seleccionar"
-                v-model="movimiento.bodegaRecibe"
+                v-model="movimiento.bodega_recibe"
                 deselect-label="No se puede quitar este valor"
                 track-by="nombre"
                 label="nombre"
@@ -126,13 +127,14 @@
                 :options="bodegas"
                 :searchable="true"
                 :allow-empty="false"
+                :disabled="saving"
               >
               </multiselect>
             </div>
           </div>
           <div
             class="col-md-6"
-            v-if="movimiento.tipoPago.descripcion == 'Electrónico'"
+            v-if="movimiento.tipo_pago.descripcion == 'Electrónico'"
           >
             <div class="form-group">
               <label class="typo__label">Voucher</label>
@@ -140,6 +142,7 @@
                 type="text"
                 :class="errorClass('voucher')"
                 v-model="movimiento.voucher"
+                :disabled="saving"
               />
             </div>
           </div>
@@ -153,17 +156,32 @@
                 :class="errorClass('codigo_barra')"
                 v-model="codigo_barra"
                 @keyup.enter="agregarProducto"
+                :disabled="saving || movimiento.id != '0'"
               />
             </div>
           </div>
           <div class="col-md-2">
-            <button class="btn btn-primary" @click="save"><i class="fas fa-save"></i></button>
+            <button
+              class="btn btn-primary"
+              @click="save"
+              :disabled="saving || movimiento.id != '0'"
+              style="margin-top: 30px"
+            >
+              <i class="fas fa-save"></i>
+            </button>
           </div>
         </div>
         <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label class="typo__label" for="detalle">Detalles</label>
+              <span
+                class="text-danger"
+                v-if="validationErrors['movimiento.detalles']"
+              >
+                <br />
+                Debe de enviar al menos un producto
+              </span>
               <table class="table table-bordered">
                 <thead>
                   <tr>
@@ -177,7 +195,6 @@
                       Fecha vencimiento
                     </th>
                     <th v-else>Subtotal</th>
-                    <th>-</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,6 +213,7 @@
                           ' ' +
                           detalle.producto.descripcion
                         "
+                        :disabled="saving"
                       />
                     </td>
                     <td>
@@ -210,6 +228,7 @@
                         type="number"
                         class="form-control"
                         v-model="detalle.costo_unitario"
+                        :disabled="saving"
                       />
                     </td>
                     <td v-else>
@@ -232,9 +251,22 @@
                         type="number"
                         class="form-control"
                         :value="
-                          parseFloat(detalle.producto.precio_venta) *
-                          parseFloat(detalle.cantidad)
+                          (
+                            parseFloat(detalle.producto.precio_venta) *
+                            parseFloat(detalle.cantidad)
+                          ).toFixed(2)
                         "
+                        :disabled="true"
+                      />
+                    </td>
+                  </tr>
+                  <tr v-if="movimiento.detalles.length > 0">
+                    <td colspan="3" class="text-right">Total</td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control"
+                        :value="total"
                         :disabled="true"
                       />
                     </td>
@@ -356,6 +388,7 @@ export default {
         email: null,
       },
       validationErrors: {},
+      saving: false,
     };
   },
   mounted() {
@@ -386,7 +419,7 @@ export default {
           "Upss!!!",
           'No se puede seleccionar "Traslado" como tipo de pago si el movimiento no es de tipo "Traslado"'
         );
-        this.movimiento.tipoPago = {
+        this.movimiento.tipo_pago = {
           id: 0,
           descripcion: "",
         };
@@ -401,15 +434,19 @@ export default {
           "Upss!!!",
           'No se puede seleccionar un tipo de pago diferente a "Traslado" si el movimiento es de tipo "Traslado"'
         );
-        this.movimiento.tipoPago = {
+        this.movimiento.tipo_pago = {
           id: 0,
           descripcion: "",
         };
       }
+
+      if (selectedOption.descripcion != "Electrónico") {
+        this.movimiento.voucher = null;
+      }
     },
     verificarTipo(selectedOption) {
       if (selectedOption.nombre == "Traslado") {
-        this.movimiento.tipoPago = {
+        this.movimiento.tipo_pago = {
           id: 3,
           descripcion: "Traslado",
         };
@@ -440,10 +477,8 @@ export default {
             this.movimiento.detalles.forEach((detalle, index) => {
               if (detalle.producto.id == producto.id) {
                 existe = true;
-                this.movimiento.detalles[index].cantidad = parseInt(this.movimiento.detalles[index].cantidad) + 1;
-                this.movimiento.detalles[index].subtotal =
-                  this.movimiento.detalles[index].cantidad *
-                  producto.precio_venta;
+                this.movimiento.detalles[index].cantidad =
+                parseInt(this.movimiento.detalles[index].cantidad) + 1;
               }
             });
             if (!existe) {
@@ -495,7 +530,7 @@ export default {
           this.handleError(err);
         });
     },
-    save(){
+    save() {
       this.startTransaction();
       const params = {
         movimiento: this.movimiento,
@@ -503,20 +538,45 @@ export default {
       axios
         .post(`/bodegas/movimientos`, params)
         .then((res) => {
-          this.showMessage("success", "Éxito", "Guardado correctamente");
+          this.movimiento.cliente = {
+            id: "",
+            nombres: "",
+            direccion: "",
+          };
+
+          this.movimiento.estado = {
+            id: 0,
+            descripcion: "",
+          };
+
+          this.movimiento.tipo_pago = {
+            id: 1,
+            descripcion: "Efectivo",
+          };
+
+          this.movimiento.bodega_recibe = {
+            id: 0,
+            nombre: "",
+          };
+          this.codigo_barra = "";
+          this.movimiento.detalles = [];
+          this.showToast(res.data.message);
           this.saving = false;
         })
         .catch((err) => {
           this.handleError(err);
         });
-    }
+    },
   },
   computed: {
-    nombreProducto() {
-      if (this.producto.nombre == "") {
-        return "";
-      }
-      return `${this.producto.nombre} - ${this.producto.marca} - ${this.producto.descripcion}`;
+    total() {
+      let total = 0;
+      this.movimiento.detalles.forEach((detalle) => {
+        total +=
+          parseFloat(detalle.producto.precio_venta) *
+          parseFloat(detalle.cantidad);
+      });
+      return total.toFixed(2);
     },
   },
   mixins: [errorsMixin],
