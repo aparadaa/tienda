@@ -21,7 +21,7 @@ class Sections
             // Bodegas
             new CsgtModule('Bodegas', '', 'bodegas', 4000, 'fas fa-warehouse', null, []),
             new CsgtModule('Bodegas', 'Bodegas - Bodegas', 'bodegas.bodegas', 100, 'fas fa-warehouse', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
-            new CsgtModule('Bodegas de Usuarios', 'Bodegas - Bodegas de Usuarios', 'bodegas.bodegas-usuarios', 200, 'fas fa-house-user', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
+            new CsgtModule('Bodegas de Usuarios', 'Bodegas - Bodegas de Usuarios', 'bodegas.bodegas-usuarios', 200, 'fas fa-house-user', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show', 'destroy']),
             new CsgtModule('Movimientos', 'Bodegas - Movimientos', 'bodegas.movimientos', 300, 'fas fa-folder-open', 'bodegas', ['index', 'create', 'store', 'edit', 'update', 'data', 'detail', 'show']),
 
             // Inventarios
