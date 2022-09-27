@@ -30,7 +30,7 @@ class Sections
 
             // Inventarios
             new CsgtModule('Clientes', '', 'clientes', 5000, 'fas fa-users', null, []),
-            new CsgtModule('Clientes', 'Clientes - Clientes', 'clientes.clientes', 100, 'fas fa-users', 'clientes', ['index', 'edit', 'update', 'data', 'detail', 'show']),
+            new CsgtModule('Clientes', 'Clientes - Clientes', 'clientes.clientes', 100, 'fas fa-users', 'clientes', ['index', 'store', 'edit', 'update', 'data', 'detail', 'show']),
         ]);
     }
 }
