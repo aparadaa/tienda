@@ -478,7 +478,7 @@ export default {
               if (detalle.producto.id == producto.id) {
                 existe = true;
                 this.movimiento.detalles[index].cantidad =
-                parseInt(this.movimiento.detalles[index].cantidad) + 1;
+                  parseInt(this.movimiento.detalles[index].cantidad) + 1;
               }
             });
             if (!existe) {
@@ -501,7 +501,11 @@ export default {
       this.startTransaction();
 
       axios
-        .get(`/clientes/clientes/${this.movimiento.cliente.id}`)
+        .get(`/clientes/clientes/${this.movimiento.cliente.id}`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
         .then((res) => {
           if (_.isEmpty(res.data)) {
             $("#create_cliente").modal("show");
@@ -519,8 +523,13 @@ export default {
       let cliente = this.cliente;
       cliente.id = this.movimiento.cliente.id;
       this.validationErrors = {};
+
       axios
-        .post(`/clientes/clientes`, cliente)
+        .post(`/clientes/clientes`, cliente, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
         .then((res) => {
           this.movimiento.cliente = res.data;
           this.saving = false;

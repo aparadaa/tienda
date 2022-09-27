@@ -23,12 +23,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('profile', 'ProfileController', ['only' => ['index', 'detail', 'store']]);
 });
 
-Route::group(['middleware' => ['auth']], function () {
-    Route::namespace ('Clientes')->prefix('clientes')->name('clientes.')->group(function () {
-        Route::resource('clientes', 'ClientesController')->only(['show', 'store']);
-    });
-});
-
 Route::group(['middleware' => ['auth', 'cancerbero']], function () {
     Route::get('/', ['as' => 'index.index', 'uses' => 'HomeController@index']);
 
@@ -49,6 +43,10 @@ Route::group(['middleware' => ['auth', 'cancerbero']], function () {
 
     Route::namespace ('Inventarios')->prefix('inventarios')->name('inventarios.')->group(function () {
         Route::resource('inventarios', 'InventariosController')->only(['index', 'show']);
+    });
+
+    Route::namespace ('Clientes')->prefix('clientes')->name('clientes.')->group(function () {
+        Route::resource('clientes', 'ClientesController');
     });
 
 });
