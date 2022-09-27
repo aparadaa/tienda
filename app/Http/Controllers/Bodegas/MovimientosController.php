@@ -228,21 +228,21 @@ class MovimientosController extends CrudController
         }
 
         DB::transaction(function () use ($movimiento) {
-            $m                       = new Movimiento;
-            $m->bodega_id            = $movimiento['bodega']['id'];
-            $m->tipo_movimiento_id   = $movimiento['tipo']['id'];            
-            $m->tipo_pago_id         = $movimiento['tipo_pago']['id'];
+            $m                     = new Movimiento;
+            $m->bodega_id          = $movimiento['bodega']['id'];
+            $m->tipo_movimiento_id = $movimiento['tipo']['id'];
+            $m->tipo_pago_id       = $movimiento['tipo_pago']['id'];
 
             if ($movimiento['tipo']['nombre'] == 'Traslado') {
-                $m->recibe_bodega_id = $movimiento['bodega_recibe']['id'];
+                $m->recibe_bodega_id     = $movimiento['bodega_recibe']['id'];
                 $m->estado_movimiento_id = 3;
             } else {
-                $m->recibe_bodega_id = $movimiento['bodega']['id'];
+                $m->recibe_bodega_id     = $movimiento['bodega']['id'];
                 $m->estado_movimiento_id = 1;
             }
-            $m->cliente_id       = $movimiento['cliente']['id'];
-            $m->user_id          = auth()->user()->id;
-            $m->voucher          = $movimiento['voucher'] ?? null;
+            $m->cliente_id = $movimiento['cliente']['id'];
+            $m->user_id    = auth()->user()->id;
+            $m->voucher    = $movimiento['voucher'] ?? null;
             $m->save();
 
             switch ($movimiento['tipo']['nombre']) {
@@ -294,7 +294,8 @@ class MovimientosController extends CrudController
             $md->producto_id         = $lote->producto_id;
             $md->lote_id             = $lote->id;
             $md->cantidad            = $detalle['cantidad'];
-            $md->precio_venta_unidad = 0;
+            $md->precio_venta_unidad = $detalle['costo_unitario'];
+            $md->sub_total           = $detalle['cantidad'] * $detalle['costo_unitario'];
             $md->save();
         }
     }
